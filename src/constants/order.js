@@ -1,10 +1,10 @@
 exports.orderFilter = [
     {
-        name: 'destination',
+        name: 'departure_time',
         value: 'ASC'
     },
     {
-        name: 'destination',
+        name: 'departure_time',
         value: 'DESC'
     },
     {

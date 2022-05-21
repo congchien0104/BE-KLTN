@@ -34,12 +34,13 @@ const getCasesByFilteredRecord = async (req, res) => {
       var where = [];
       const day = new Date(req.query["date"]);
       const d = day.getDay();
-      console.log(d);
-      const temp = req.query["order"];
-      console.log(temp);
+      //console.log(d);
+      const temp = parseInt(req.query["order"]);
+      //console.log(typeof temp);
+      //console.log(orderFilter[temp].name, orderFilter[temp].value);
       
       for (let q in req.query) {
-          if(q !== "date"){
+          if(q !== "date" && q !== "order" && q !=="minprice" && q !== "maxprice"){
             var obj = {};
             obj[q] = { [Op.eq]: req.query[q] };
             where.push(obj);
@@ -47,11 +48,13 @@ const getCasesByFilteredRecord = async (req, res) => {
       }
       console.log(req.query);
       const cars = await Line.findAll({
-          //attributes: { exclude: ['id', 'countryId', 'caseFullname', 'casePhone', 'createdAt', 'caseCommunityName', 'deletedAt'] },
           include: [
             {
               model: Car,
               as: "lines",
+              // where: {
+              //   type: "Limousine"
+              // }
               //order: [['start', 'DESC']]
             },
           ],
@@ -60,9 +63,12 @@ const getCasesByFilteredRecord = async (req, res) => {
               weekdays: {
                 [Op.substring]: `${d}`
               },
+              price: {
+                [Op.between]: [req.query["minprice"], req.query["maxprice"]],
+              }
           },
           order: [
-            [orderFilter[0].name, orderFilter[0].value]
+            [orderFilter[temp].name, orderFilter[temp].value]
           ],
           limit: 10
       });
