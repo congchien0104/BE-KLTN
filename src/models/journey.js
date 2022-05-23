@@ -1,7 +1,7 @@
 "use strict";
 module.exports = (sequelize, DataTypes) => {
-  const Schedule = sequelize.define(
-    "Schedule",
+  const Journey = sequelize.define(
+    "Journey",
     {
       time_hour: {
         type: DataTypes.TIME,
@@ -18,15 +18,15 @@ module.exports = (sequelize, DataTypes) => {
     },
     {}
   );
-  Schedule.associate = function (models) {
+  Journey.associate = function (models) {
     // associations can be defined here
-    Schedule.belongsTo(models.Line, {
+    Journey.belongsTo(models.Line, {
       foreignKey: {
         name: 'lineId',
         allowNull: false
       },
-      as: 'schedules'
+      as: 'journeys'
     });
   };
-  return Schedule;
+  return Journey;
 };

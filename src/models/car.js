@@ -65,13 +65,6 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "carId",
       as: "routes",
     });
-    Car.hasMany(models.Schedule, {
-      foreignKey: {
-        name: "carId",
-        allowNull: false,
-      },
-      as: "schedules",
-    });
     Car.hasMany(models.Feedback, {
       foreignKey: {
         name: "carId",

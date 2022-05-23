@@ -1,8 +1,8 @@
 const db = require("../../models");
 const { successResponse, errorResponse } = require("../../helpers/index");
-const { Company, Car, Route, Schedule, Seat, CarSeat, Line } = db;
+const { Company, Car, Route, Schedule, Seat, CarSeat, Line, Journey } = db;
 import {orderFilter} from '../../constants/order';
-import Sequelize, { Op } from 'sequelize';
+import Sequelize, { INET, Op } from 'sequelize';
 
 const getAllCars = async (req, res) => {
   try {
@@ -114,7 +114,16 @@ const getCarSeat = async (req, res) => {
         },
       ],
     });
-    return successResponse(req, res, { car });
+
+    const line = await Line.findOne({
+      where: { carId: car.id }
+    });
+
+    const journeys = await Journey.findAll({
+      where: { lineId: line.id }
+    });
+
+    return successResponse(req, res, { car: car, line: line, journeys: journeys });
   } catch (error) {
     return errorResponse(req, res, error.message);
   }

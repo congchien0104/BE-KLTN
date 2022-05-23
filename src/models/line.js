@@ -46,6 +46,13 @@ module.exports = (sequelize, DataTypes) => {
       },
       as: 'lines'
     });
+    Line.hasMany(models.Journey, {
+      foreignKey: {
+        name: 'lineId',
+        allowNull: false
+      },
+      as: 'journeys'
+    });
   };
   return Line;
 };
