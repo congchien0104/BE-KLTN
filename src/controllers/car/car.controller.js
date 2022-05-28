@@ -1,6 +1,6 @@
 const db = require("../../models");
 const { successResponse, errorResponse } = require("../../helpers/index");
-const { Company, Car, Route, Schedule, Seat, CarSeat, Line, Journey } = db;
+const { Company, Car, User, Feedback, Seat, CarSeat, Line, Journey } = db;
 import {orderFilter} from '../../constants/order';
 import Sequelize, { INET, Op } from 'sequelize';
 
@@ -29,6 +29,79 @@ const getAllCars = async (req, res) => {
   }
 };
 
+// const getCasesByFilteredRecord = async (req, res) => {
+//   try {
+//       var where = [];
+//       const day = new Date(req.query["date"]);
+//       const d = day.getDay();
+//       //console.log(d);
+//       const temp = parseInt(req.query["order"]);
+//       //console.log(typeof temp);
+//       //console.log(orderFilter[temp].name, orderFilter[temp].value);
+      
+//       for (let q in req.query) {
+//           if(q !== "date" && q !== "order" && q !=="minprice" && q !== "maxprice"){
+//             var obj = {};
+//             obj[q] = { [Op.eq]: req.query[q] };
+//             where.push(obj);
+//           }
+//       }
+//       console.log(req.query);
+//       const cars = await Line.findAll({
+//           include: [
+//             {
+//               model: Car,
+//               as: "lines",
+//               include:[{
+//                 model: Feedback,
+//                 as: "feedbacks",
+//               }]
+//             },
+//           ],
+//           where: {
+//               [Op.or]: where, // assign the "where" array here
+//               weekdays: {
+//                 [Op.substring]: `${d}`
+//               },
+//               price: {
+//                 [Op.between]: [req.query["minprice"], req.query["maxprice"]],
+//               }
+//           },
+//           order: [
+//             [orderFilter[temp].name, orderFilter[temp].value]
+//           ],
+//           limit: 10
+//       });
+//       if (cars.length === 0) {
+//           return res.json({
+//               message: 'There are no case records for this query. Please unselect some items.'
+//           })
+//       };
+
+//       console.log("cars", cars);
+//       const carsId = (cars || []).map(item => item.carId);
+//       console.log("cars", carsId);
+
+
+//       // const result = await Promise.all((carsId || []).map( async (item) => {
+//       //   const feedback = await Feedback.findAll({
+//       //     attributes: { exclude: ['carId'] },
+//       //     where: {carId: item},
+//       //   });
+//       //   console.log(feedback);
+//       //   return feedback;
+//       // }));
+
+      
+
+//       // console.log("res", result);
+
+//       return successResponse(req, res, { cars: (cars || []).map((item, index) => item )});
+//   } catch (err) {
+//     return errorResponse(req, res, err.message);
+//   };
+// };
+
 const getCasesByFilteredRecord = async (req, res) => {
   try {
       var where = [];
@@ -47,30 +120,37 @@ const getCasesByFilteredRecord = async (req, res) => {
           }
       }
       console.log(req.query);
-      const cars = await Line.findAll({
+      const cars = await Car.findAll({
           include: [
             {
-              model: Car,
+              model: Line,
               as: "lines",
-              // where: {
-              //   type: "Limousine"
-              // }
-              //order: [['start', 'DESC']]
-            },
-          ],
-          where: {
-              [Op.or]: where, // assign the "where" array here
-              weekdays: {
-                [Op.substring]: `${d}`
+              where: {
+                [Op.or]: where, // assign the "where" array here
+                weekdays: {
+                  [Op.substring]: `${d}`
+                },
+                price: {
+                  [Op.between]: [req.query["minprice"], req.query["maxprice"]],
+                }
               },
-              price: {
-                [Op.between]: [req.query["minprice"], req.query["maxprice"]],
-              }
-          },
-          order: [
-            [orderFilter[temp].name, orderFilter[temp].value]
+              order: [
+                [orderFilter[temp].name, orderFilter[temp].value]
+              ],
+            },
+            {
+              model: Feedback,
+              as: "feedbacks",
+              include: [
+                {
+                  model: User,
+                  as: "feedbacks",
+                  attributes: { exclude: ['password'] }
+                },
+              ],
+            }
           ],
-          limit: 10
+          //limit: 10
       });
       if (cars.length === 0) {
           return res.json({
@@ -78,10 +158,33 @@ const getCasesByFilteredRecord = async (req, res) => {
           })
       };
 
-      return successResponse(req, res, { cars });
+      return successResponse(req, res, { cars});
   } catch (err) {
     return errorResponse(req, res, err.message);
   };
+};
+
+const getTemp = async (req, res) => {
+  try {
+    const carId = 18;
+    const car = await Car.findOne({
+      where: { id: carId },
+      include: [
+        {
+          model: Line,
+          as: "lines",
+          include: [{
+              model: Feedback,
+              as: "feedbacks",
+            }
+          ]
+        },
+      ],
+    });
+    return successResponse(req, res, { car });
+  } catch (error) {
+    return errorResponse(req, res, error.message);
+  }
 };
 
 const getCar = async (req, res) => {
@@ -191,4 +294,4 @@ const updateCar = async (req, res) => {
   }
 };
 
-module.exports = { getAllCars, getCar, createCar, updateCar, getCarSeat, getCarOfCompany, getCasesByFilteredRecord };
+module.exports = { getAllCars, getCar, createCar, updateCar, getCarSeat, getCarOfCompany, getCasesByFilteredRecord, getTemp };

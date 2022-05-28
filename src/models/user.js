@@ -60,7 +60,7 @@ module.exports = (sequelize, DataTypes) => {
         name: "userId",
         allowNull: false,
       },
-      as: "feedbacks",
+      as: "user",
     });
     User.hasMany(models.Reservation, {
       foreignKey: {
