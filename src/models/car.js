@@ -15,20 +15,12 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      station: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
       image: {
         type: DataTypes.STRING,
         allowNull: false,
       },
       price: {
         type: DataTypes.FLOAT,
-        allowNull: false,
-      },
-      station_to: {
-        type: DataTypes.STRING,
         allowNull: false,
       },
       status_trip: {

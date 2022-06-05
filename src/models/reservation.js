@@ -1,5 +1,7 @@
 "use strict";
 const randomstring = require("randomstring");
+import { ticketStatus } from '../constants/status';
+
 module.exports = (sequelize, DataTypes) => {
   const Reservation = sequelize.define(
     "Reservation",
@@ -56,6 +58,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      status: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
     },
     {}
   );
@@ -94,7 +100,8 @@ module.exports = (sequelize, DataTypes) => {
       cccd: data.cccd,
       pickup_place: data.pickup_place,
       dropoff_place: data.dropoff_place,
-      position: temp.join(",")
+      position: temp.join(","),
+      status: ticketStatus.active,
     });
 
     return reservation;

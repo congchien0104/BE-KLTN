@@ -3,22 +3,49 @@ const randomstring = require("randomstring");
 const { successResponse, errorResponse } = require("../../helpers/index");
 const { User, Car, Reservation, Schedule, Route } = db;
 import Sequelize, { Op } from 'sequelize';
+import { ticketStatus } from '../../constants/status';
+
+
+
+const updateReservationStatus = async (req, res) => {
+  try {
+    const id = req.params.reservationId;
+    console.log(id);
+    const reservation = Reservation.findOne({
+      where: { id: id}
+    })
+    if (!reservation) {
+      return res.status(400).send({ message: "Reservation not found!" });
+    }
+    const result = await Reservation.update(
+      { status: ticketStatus.cancelled},
+      { where: { id: id } }
+    );
+
+    return successResponse(req, res, { result });
+  } catch(error) {
+    return errorResponse(req, res, error.message);
+  }
+}
+
 
 const getAllReservations = async (req, res) => {
   try {
-    console.log(req.query.page);
-    const page = req.query.page || 1;
-    const limit = 8;
-    const reservations = await Reservation.findAndCountAll({
-      order: [
-        ["createdAt", "DESC"],
-        ["fullname", "ASC"],
-      ],
-      offset: (page - 1) * limit,
-      limit,
-    });
-    return successResponse(req, res, { reservations });
-  } catch (error) {
+    const id = req.params.reservationId;
+    console.log(id);
+    const reservation = Reservation.findOne({
+      where: { id: id}
+    })
+    if (!reservation) {
+      return res.status(400).send({ message: "Reservation not found!" });
+    }
+    const result = await Reservation.update(
+      { status: ticketStatus.cancelled},
+      { where: { id: id } }
+    );
+
+    return successResponse(req, res, { result });
+  } catch(error) {
     return errorResponse(req, res, error.message);
   }
 };
@@ -27,15 +54,41 @@ const getReservationOfUser = async (req, res) => {
   try {
     const reservationId = req.params.reservationId;
     const reservation = await Reservation.findAll({
-      where: { userId: reservationId },
+      where: { userId: reservationId,
+        createdAt: {
+          [Op.gt]: new Date(new Date() - 24 * 60 * 60 * 1000)
+        },
+        status: ticketStatus.active,
+      },
       include: [
         {
           model: Car,
           as: "cars",
         },
       ],
+      order: [
+        ["createdAt", 'DESC']
+      ]
     });
-    return successResponse(req, res, { reservation });
+
+    const result = await Reservation.findAll({
+      where: { userId: reservationId,
+        createdAt: {
+          [Op.lt]: new Date(),
+        },
+        status: !ticketStatus.active,
+      },
+      include: [
+        {
+          model: Car,
+          as: "cars",
+        },
+      ],
+      order: [
+        ["createdAt", 'DESC']
+      ]
+    });
+    return successResponse(req, res, { reservation: reservation || [], result: result || []  });
   } catch (error) {
     return errorResponse(req, res, error.message);
   }
@@ -104,6 +157,7 @@ const createReservation = async (req, res) => {
       fullname: req.body.fullname,
       phone: req.body.phone,
       email: req.body.email,
+      status: ticketStatus.active,
     });
 
     return successResponse(req, res, "Success");
@@ -112,10 +166,12 @@ const createReservation = async (req, res) => {
   }
 };
 
+
 module.exports = {
   getAllReservations,
   getReservation,
   getReservationOfCar,
   getReservationOfUser,
   createReservation,
+  updateReservationStatus,
 };

@@ -3,8 +3,10 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return Promise.all([
-      queryInterface.removeColumn("Cars", "station"),
-      queryInterface.removeColumn("Cars", "station_to"),
+      queryInterface.addColumn("Reservations", "status", {
+        type: Sequelize.STRING,
+        allowNull: false,
+      }),
     ]);
   },
 
