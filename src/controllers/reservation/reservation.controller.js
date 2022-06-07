@@ -166,6 +166,24 @@ const createReservation = async (req, res) => {
   }
 };
 
+// calculate total amount
+const getTotalAmount = async (req, res) => {
+  try {
+    const total = await Reservation.sum('amount');
+    return successResponse(req, res, { total });
+  } catch(error) {
+    return errorResponse(req, res, error.message);
+  }
+}
+
+const calculateTotalOfCompany = async (req, res) => {
+  try {
+
+  } catch(error) {
+    return errorResponse(req, res, error.message);
+  }
+}
+
 
 module.exports = {
   getAllReservations,
@@ -174,4 +192,5 @@ module.exports = {
   getReservationOfUser,
   createReservation,
   updateReservationStatus,
+  getTotalAmount,
 };

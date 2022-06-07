@@ -5,6 +5,7 @@ const { User, Car, Reservation, Schedule, Route, CarSeat } = db;
 const paypal = require('paypal-rest-sdk');
 const paypalConfig = require('../../config/paypal');
 paypal.configure(paypalConfig);
+import sequelize, { Op } from 'sequelize';
 
 // const createReservation = async (req, res) => {
 //   try {
@@ -140,7 +141,38 @@ const doPaymentServicePackage = async (req, res, next) => {
   }
 };
 
+// calculate total amount
+const getTotalAmount = async (req, res) => {
+  try {
+    const total = await Reservation.sum('amount');
+    const totalAmountOfCar = await Reservation.findAll({
+      attributes: [
+        'carId',
+        [sequelize.fn('sum', sequelize.col('amount')), 'total_amount'],
+      ],
+      group: ['carId'],
+      order: sequelize.fn('sum', sequelize.col('amount')),
+    });
+    return successResponse(req, res, { total: total, totalAmountOfCar: totalAmountOfCar });
+  } catch(error) {
+    return errorResponse(req, res, error.message);
+  }
+}
+
+const getTotalOfCompany = async (req, res) => {
+  try {
+    const carId = req.params.carId;
+    const d = req.query.date;
+    const total = await Reservation.findAll({ where: { carId: carId}});
+    return successResponse(req, res, { total });
+  } catch(error) {
+    return errorResponse(req, res, error.message);
+  }
+}
+
 module.exports = {
   createPaypal,
   doPaymentServicePackage,
+  getTotalAmount,
+  getTotalOfCompany,
 };

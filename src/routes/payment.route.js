@@ -10,4 +10,7 @@ const userMiddleware = require("../../src/middleware/authJwt");
 router.get("/paypal", paymentController.doPaymentServicePackage);
 router.post("/createpaypal", paymentController.createPaypal);
 
+router.get("/total", paymentController.getTotalAmount);
+router.get("/total-car/:carId", paymentController.getTotalOfCompany);
+
 module.exports = router;
