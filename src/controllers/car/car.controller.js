@@ -240,13 +240,14 @@ const createCar = async (req, res) => {
     if (!company) {
       return res.send({ message: "Company not found!" });
     }
+    console.log(req.body);
     const car = await Car.create({
       name: req.body.name,
       plate_number: req.body.plate_number,
       capacity: req.body.capacity,
-      station: req.body.station,
-      station_to: req.body.station_to,
-      price: req.body.price,
+      type: req.body.type,
+      // station_to: req.body.station_to,
+      // price: req.body.price,
       image: req.body.image,
       status_trip: false,
       companyId: companyId,

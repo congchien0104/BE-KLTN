@@ -152,6 +152,12 @@ const getTotalAmount = async (req, res) => {
       ],
       group: ['carId'],
       order: sequelize.fn('sum', sequelize.col('amount')),
+      include: [
+        {
+          model: Car,
+          as: "cars",
+        },
+      ],
     });
     return successResponse(req, res, { total: total, totalAmountOfCar: totalAmountOfCar });
   } catch(error) {

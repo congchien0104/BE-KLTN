@@ -44,9 +44,12 @@ const createLine = async (req, res) => {
       arrival_time: req.body.arrival_time,
       innitiated_date: req.body.innitiated_date,
       weekdays: temp.join(","),
-      status_trip: req.body.status_trip,
-      start_route_trip: req.body.start_route_trip,
-      des_route_trip: req.body.des_route_trip,
+      // status_trip: req.body.status_trip,
+      // start_route_trip: req.body.start_route_trip,
+      // des_route_trip: req.body.des_route_trip,
+      price: req.body.price,
+      station: req.body.station,
+      station_to: req.body.station_to,
     });
     return successResponse(req, res, { line });
   } catch (error) {
