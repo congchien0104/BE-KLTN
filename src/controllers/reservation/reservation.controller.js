@@ -1,7 +1,7 @@
 const db = require("../../models");
 const randomstring = require("randomstring");
 const { successResponse, errorResponse } = require("../../helpers/index");
-const { User, Car, Reservation, Schedule, Route } = db;
+const { User, Car, Reservation, Schedule, Line } = db;
 import Sequelize, { Op } from 'sequelize';
 import { ticketStatus } from '../../constants/status';
 
@@ -64,6 +64,12 @@ const getReservationOfUser = async (req, res) => {
         {
           model: Car,
           as: "cars",
+          include: [
+            {
+              model: Line,
+              as: "lines",
+            },
+          ],
         },
       ],
       order: [
@@ -82,6 +88,12 @@ const getReservationOfUser = async (req, res) => {
         {
           model: Car,
           as: "cars",
+          include: [
+            {
+              model: Line,
+              as: "lines",
+            },
+          ],
         },
       ],
       order: [
@@ -118,15 +130,68 @@ const getReservation = async (req, res) => {
 
 const getReservationOfCar = async (req, res) => {
   try {
+    const { page, search } = req.query;
+    const pages = page || 1;
+    const limit = 8;
     const carId = req.params.carId;
-    const reservation = await Reservation.findAll({
-      where: { carId: carId },
+    const reservation = await Reservation.findAndCountAll({
+      where: { 
+            carId: carId,
+            [Op.or]: {
+              receipt_number: {
+                [Op.like]: '%' + search + '%'
+              },
+              fullname: {
+                [Op.like]: '%' + search + '%'
+              },
+              email: {
+                [Op.like]: '%' + search + '%'
+              },
+              pickup_place: {
+                [Op.like]: '%' + search + '%'
+              },
+              dropoff_place: {
+                [Op.like]: '%' + search + '%'
+              },
+            }
+        },
       include: [
         {
           model: Car,
           as: "cars",
+          // where: {
+          //   [Op.or]: {
+          //     name: {
+          //       [Op.like]: '%' + search + '%'
+          //     },
+          //     plate_number: {
+          //       [Op.like]: '%' + search + '%'
+          //     },
+          //   }
+          // },
+          include: [
+            {
+              model: Line,
+              as: "lines",
+              // where: {
+              //   [Op.or]: {
+              //     start: {
+              //       [Op.like]: '%' + search + '%'
+              //     },
+              //     destination: {
+              //       [Op.like]: '%' + search + '%'
+              //     },
+              //   }
+              // }
+            },
+          ],
         },
       ],
+      order: [
+        ['createdAt', 'DESC']
+      ],
+      offset: search ? 0 : (pages - 1) * limit,
+      limit,
     });
     return successResponse(req, res, { reservation });
   } catch (error) {
@@ -140,27 +205,31 @@ const createReservation = async (req, res) => {
     const carId = req.params.carId;
     console.log(req.body);
 
-    const car = await Car.findOne({ where: { id: carId } });
-    if (!car) {
-      return res.send({ message: "Car not found!" });
-    }
+    // const car = await Car.findOne({ where: { id: carId } });
+    // if (!car) {
+    //   return res.send({ message: "Car not found!" });
+    // }
 
-    const reservation = await Reservation.create({
-      receipt_number: randomstring.generate(10),
-      amount: req.body.amount,
-      paid_amount: req.body.paid_amount || 0,
-      paid_date: new Date(),
-      reservation_date: new Date(),
-      carId: carId,
-      userId: userId,
-      quantity: req.body.quantity,
-      fullname: req.body.fullname,
-      phone: req.body.phone,
-      email: req.body.email,
-      status: ticketStatus.active,
-    });
+    // const reservation = await Reservation.create({
+    //   receipt_number: randomstring.generate(10),
+    //   amount: data.amount,
+    //   paid_amount: data.amount,
+    //   paid_date: new Date(),
+    //   reservation_date: new Date(data.reservations_date),
+    //   carId: data.carId,
+    //   userId: userId || 14,
+    //   quantity: data.quantity,
+    //   fullname: data.fullname,
+    //   phone: data.phone,
+    //   email: data.email,
+    //   cccd: data.cccd,
+    //   pickup_place: data.pickup_place,
+    //   dropoff_place: data.dropoff_place,
+    //   position: temp.join(","),
+    //   status: ticketStatus.active,
+    // });
 
-    return successResponse(req, res, "Success");
+    // return successResponse(req, res, reservation);
   } catch (error) {
     return errorResponse(req, res, error.message);
   }

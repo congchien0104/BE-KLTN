@@ -215,6 +215,10 @@ const getCarSeat = async (req, res) => {
           model: CarSeat,
           as: "carseats",
         },
+        {
+          model: Line,
+          as: "lines",
+        },
       ],
     });
 

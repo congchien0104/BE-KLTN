@@ -26,10 +26,10 @@ const allUsers = async (req, res) => {
 const allSearchUsers = async (req, res) => {
   try {
     const { page, search } = req.query;
-    console.log(search);
-    console.log(page);
     const pages = page || 1;
-    console.log(pages);
+    // console.log(search);
+    // console.log(page);
+    //console.log("alo alo", search);
     const limit = 8;
     const users = await User.findAndCountAll({
       order: [
@@ -41,9 +41,12 @@ const allSearchUsers = async (req, res) => {
           username: {
             [Op.like]: '%' + search + '%'
           },
+          email: {
+            [Op.like]: '%' + search + '%'
+          },
         }
       },
-      offset: (pages - 1) * limit,
+      offset: search ? 0 : (pages - 1) * limit,
       limit,
     });
     return successResponse(req, res, { users });
@@ -90,26 +93,6 @@ const update = (req, res) => {
         message: "Error updating User with userId=" + userId,
       });
     });
-  // try {
-  //   const { userId } = req.user;
-  //   console.log(userId);
-  //   const user = await User.findOne({ where: { id: userId } });
-  //   if (!user) {
-  //     return res.send("User not found!");
-  //   }
-  //   await User.update(
-  //     {
-  //       firstname: req.body.firstname,
-  //       fullname: req.body.fullname,
-  //       phone: req.body.phone,
-  //       address: req.body.address,
-  //     },
-  //     { where: { id: userId } }
-  //   );
-  //   return successResponse(req, res, {});
-  // } catch (error) {
-  //   return errorResponse(req, res, error.message);
-  // }
 };
 
 const changePassword = async (req, res) => {

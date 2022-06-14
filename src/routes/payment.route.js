@@ -7,8 +7,8 @@ const paymentController = require("../controllers/payment/payment.controller");
 const userMiddleware = require("../../src/middleware/authJwt");
 
 
-router.get("/paypal", paymentController.doPaymentServicePackage);
-router.post("/createpaypal", paymentController.createPaypal);
+router.get("/paypal",  paymentController.doPaymentServicePackage);
+router.post("/createpaypal", userMiddleware.verifyToken, paymentController.createPaypal);
 
 router.get("/total", paymentController.getTotalAmount);
 router.get("/total-car/:carId", paymentController.getTotalOfCompany);

@@ -1,6 +1,7 @@
 const db = require("../../models");
 const { successResponse, errorResponse } = require("../../helpers/index");
-const { Company, Car, Route, Schedule, Seat } = db;
+const { Company, Car, Route, Schedule, Seat, Reservation } = db;
+const randomstring = require("randomstring");
 
 const getAllRoutes = async (req, res) => {
   try {
@@ -90,22 +91,51 @@ const getSheduleOfRoute = async (req, res) => {
 
 const createSchedule = async (req, res) => {
   try {
+    const { userId } = req.user;
+    console.log(userId);
     const carId = req.params.carId;
-    console.log(carId);
-    const car = await Car.findOne({ where: { id: carId } });
-    if (!car) {
-      return res.send({ message: "Car not found!" });
-    }
-    const route = await Route.create({
-      starting_point: req.body.starting_point,
-      destination: req.body.destination,
-      departture_time: req.body.departture_time,
-      arrival_time: req.body.arrival_time,
+    console.log(req.body);
+    const dataToSave = req.body;
+
+    const resDateToSave = (dataToSave || []).map((item) => {
+      return {
+        ...item,
+        receipt_number: randomstring.generate(10),
+        paid_date: new Date(),
+        userId: userId,
+        paid_amount: 0,
+      }
     });
-    route.setCars([carId]).then(() => {
-      res.send("Success!");
-    });
-    //return successResponse(req, res, { car });
+
+    console.log(resDateToSave);
+
+    const reservation = await Reservation.bulkCreate(resDateToSave);
+
+    // const car = await Car.findOne({ where: { id: carId } });
+    // if (!car) {
+    //   return res.send({ message: "Car not found!" });
+    // }
+
+    // const reservation = await Reservation.create({
+    //   receipt_number: randomstring.generate(10),
+    //   amount: data.amount,
+    //   paid_amount: data.amount,
+    //   paid_date: new Date(),
+    //   reservation_date: new Date(data.reservations_date),
+    //   carId: data.carId,
+    //   userId: userId || 14,
+    //   quantity: data.quantity,
+    //   fullname: data.fullname,
+    //   phone: data.phone,
+    //   email: data.email,
+    //   cccd: data.cccd,
+    //   pickup_place: data.pickup_place,
+    //   dropoff_place: data.dropoff_place,
+    //   position: temp.join(","),
+    //   status: ticketStatus.active,
+    // });
+
+    // return successResponse(req, res, reservation);
   } catch (error) {
     return errorResponse(req, res, error.message);
   }
