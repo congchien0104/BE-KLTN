@@ -1,25 +1,22 @@
 const db = require("../../models");
 const { successResponse, errorResponse } = require("../../helpers/index");
-const { Company, Car, Route, Schedule, Seat, Reservation } = db;
+const { Company, Car, Route, Schedule, Seat, Reservation, Line } = db;
 const randomstring = require("randomstring");
 
-const getAllRoutes = async (req, res) => {
+export const getLinesList = async (req, res) => {
   try {
-    const lines = await Route.findAll({
+    const companyId = req.params.id;
+    console.log(companyId);
+    const list = await Car.findAll({
+      where: { companyId: companyId },
       include: [
         {
-          model: Schedule,
+          model: Line,
           as: "lines",
-          include: [
-            {
-              model: Car,
-              as: "schedules",
-            },
-          ],
         },
-      ],
-    });
-    return successResponse(req, res, { lines });
+      ]
+    })
+    return successResponse(req, res, { list });
   } catch (error) {
     return errorResponse(req, res, error.message);
   }
@@ -142,7 +139,7 @@ const createSchedule = async (req, res) => {
 };
 
 module.exports = {
-  getAllRoutes,
+  getLinesList,
   getSheduleOfCar,
   getSheduleOfRoute,
   createSchedule,

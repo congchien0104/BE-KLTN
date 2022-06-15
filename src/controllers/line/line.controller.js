@@ -3,6 +3,33 @@ const { successResponse, errorResponse } = require("../../helpers/index");
 const { Company, Car, Line } = db;
 import Sequelize, { Op } from 'sequelize';
 
+
+
+export const getLinesList = async (req, res) => {
+  try {
+    const companyId = req.params.id;
+    console.log(companyId);
+    const list = await Company.findAll({
+      where: { id: companyId },
+      includes: [
+        {
+          model: Car,
+          as: "lines",
+          includes: [
+            {
+              model: Line,
+              as: "lines",
+            },
+          ]
+        },
+      ]
+    })
+    return successResponse(req, res, { lines });
+  } catch (error) {
+    return errorResponse(req, res, error.message);
+  }
+};
+
 const getLines = async (req, res) => {
   try {
     const carId = req.params.id;
@@ -79,5 +106,6 @@ const updateLine = async (req, res) => {
 module.exports = {
     createLine,
     getLines,
-    updateLine
+    updateLine,
+    getLinesList,
 };
