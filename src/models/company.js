@@ -50,6 +50,13 @@ module.exports = (sequelize, DataTypes) => {
       },
       as: 'user'
     });
+    Company.hasMany(models.Line, {
+      foreignKey: {
+        name: "companyId",
+        allowNull: false,
+      },
+      as: "lines",
+    });
   };
   return Company;
 };

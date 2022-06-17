@@ -91,4 +91,22 @@ const confirmed = async (req, res) => {
   }
 }
 
-module.exports = { getAllCompanies, getCompany, createCompany, confirmed };
+const getCarOfCompany = async (req, res) => {
+  try {
+    const id = req.params.companyId;
+    const cars = await Company.findOne({
+      where: { id: id },
+      include: [
+        {
+          model: Car,
+          as: "cars",
+        },
+      ],
+    });
+    return successResponse(req, res, { cars });
+  } catch (error) {
+    return errorResponse(req, res, error.message);
+  }
+};
+
+module.exports = { getAllCompanies, getCompany, createCompany, confirmed, getCarOfCompany };

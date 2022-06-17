@@ -1,23 +1,27 @@
 const db = require("../../models");
 const { successResponse, errorResponse } = require("../../helpers/index");
-const { Company, Car, Line } = db;
+const { Company, Car, Line, Journey } = db;
 import Sequelize, { Op } from 'sequelize';
 
 
 
 export const getLinesList = async (req, res) => {
   try {
-    const companyId = req.params.id;
+    const companyId = req.params.companyId;
     console.log(companyId);
-    const list = await Company.findAll({
+    const lines = await Company.findOne({
       where: { id: companyId },
-      includes: [
+      include: [
         {
-          model: Car,
+          model: Line,
           as: "lines",
-          includes: [
+          include: [
             {
-              model: Line,
+              model: Journey,
+              as: "journeys",
+            },
+            {
+              model: Car,
               as: "lines",
             },
           ]
@@ -30,53 +34,56 @@ export const getLinesList = async (req, res) => {
   }
 };
 
-const getLines = async (req, res) => {
+const getJourneyLineList = async (req, res) => {
   try {
-    const carId = req.params.id;
-    const status = req.query.status === "false" ? false : true;
-    console.log(carId);
-    console.log(status);
-    const lines = await Line.findOne({
-      // where: { [Op.and]: [
-      //   { carId: carId },
-      //   { status_trip: status }
-      // ] },
-      where: { carId: carId, status_trip: status},
+    const lineId = req.params.lineId;
+    const journeys = await Journey.findAll({
+      where: { lineId: lineId },
+    })
+    return successResponse(req, res, { journeys });
+  } catch (error) {
+    return errorResponse(req, res, error.message);
+  }
+}
+
+const getLine = async (req, res) => {
+  try {
+    const lineId = req.params.id;
+    const line = await Line.findOne({
+      where: { id: lineId},
       include: [
         {
-          model: Car,
-          as: "lines",
+          model: Journey,
+          as: "journeys",
         },
       ],
     });
-    return successResponse(req, res, { lines });
+    return successResponse(req, res, { line });
   } catch (error) {
     return errorResponse(req, res, error.message);
   }
 };
 const createLine = async (req, res) => {
   try {
-    const carId = req.params.id;
-    console.log(carId);
-    const car = await Car.findOne({ where: { id: carId } });
-    if (!car) {
-      return res.send({ message: "Car not found!" });
+    const companyId = req.params.id;
+    //console.log(carId);
+    const company = await Company.findOne({ where: { id: companyId } });
+    if (!company) {
+      return res.send({ message: "Company not found!" });
     }
     const temp = req.body.weekdays;
     const line = await Line.create({
-      carId: carId,
+      carId: 11,
       start: req.body.start,
       destination: req.body.destination,
       departure_time: req.body.departure_time,
       arrival_time: req.body.arrival_time,
       innitiated_date: req.body.innitiated_date,
       weekdays: temp.join(","),
-      // status_trip: req.body.status_trip,
-      // start_route_trip: req.body.start_route_trip,
-      // des_route_trip: req.body.des_route_trip,
       price: req.body.price,
       station: req.body.station,
       station_to: req.body.station_to,
+      companyId: companyId,
     });
     return successResponse(req, res, { line });
   } catch (error) {
@@ -86,12 +93,13 @@ const createLine = async (req, res) => {
 
 const updateLine = async (req, res) => {
   try {
-    const carId = req.params.id;
+    const lineId = req.params.id;
     const line = await Line.findOne({
-      where: { carId: carId, status_trip: req.body.status_trip },
+      where: { id: lineId },
     });
     const temp = req.body.weekdays;
     req.body.weekdays = temp.join(",");
+    console.log(req.body.weekdays);
     await Line.update(
       { ...line, ...req.body },
       { where: { id: line.id } }
@@ -105,7 +113,8 @@ const updateLine = async (req, res) => {
 
 module.exports = {
     createLine,
-    getLines,
+    getLine,
     updateLine,
     getLinesList,
+    getJourneyLineList,
 };

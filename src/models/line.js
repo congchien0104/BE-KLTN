@@ -37,6 +37,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    companyId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   }, {});
   Line.associate = function(models) {
     Line.belongsTo(models.Car, {
@@ -52,6 +56,13 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false
       },
       as: 'journeys'
+    });
+    Line.belongsTo(models.Company, {
+      foreignKey: {
+        name: 'companyId',
+        allowNull: false
+      },
+      as: 'trips'
     });
   };
   return Line;

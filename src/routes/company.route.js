@@ -8,9 +8,11 @@ const userMiddleware = require("../../src/middleware/authJwt");
 //const userValidate = require("../controllers/user/user.validate");
 
 router.get("/", companyController.getAllCompanies);
-router.get("/cars", companyController.getCompany);
+router.get("/cars/:companyId", companyController.getCompany);
+router.get("/:companyId", companyController.getCarOfCompany);
 router.post("/", userMiddleware.verifyToken, companyController.createCompany);
 router.post("/cars/:id", carController.createCar);
 router.put("/:id", companyController.confirmed);
+
 
 module.exports = router;
