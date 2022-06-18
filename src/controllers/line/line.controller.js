@@ -1,33 +1,57 @@
 const db = require("../../models");
 const { successResponse, errorResponse } = require("../../helpers/index");
-const { Company, Car, Line, Journey } = db;
+const { User, Company, Car, Line, Journey } = db;
 import Sequelize, { Op } from 'sequelize';
+import { user } from '../../config/auth';
 
 
 
 export const getLinesList = async (req, res) => {
   try {
-    const companyId = req.params.companyId;
-    console.log(companyId);
-    const lines = await Company.findOne({
-      where: { id: companyId },
-      include: [
-        {
-          model: Line,
-          as: "lines",
-          include: [
-            {
-              model: Journey,
-              as: "journeys",
-            },
-            {
-              model: Car,
-              as: "lines",
-            },
-          ]
-        },
-      ]
-    })
+    const userId = req.params.companyId;
+    //console.log(companyId);
+    const lines = await User.findOne({
+      where: { id: userId },
+      include: [{
+        model: Company,
+        as: "company",
+        include: [
+          {
+            model: Line,
+            as: "lines",
+            include: [
+              {
+                model: Journey,
+                as: "journeys",
+              },
+              {
+                model: Car,
+                as: "lines",
+              },
+            ]
+          },
+        ]
+      }]
+    });
+    // const lines = await Company.findOne({
+    //   where: { id: companyId },
+    //   include: [
+    //     {
+    //       model: Line,
+    //       as: "lines",
+    //       include: [
+    //         {
+    //           model: Journey,
+    //           as: "journeys",
+    //         },
+    //         {
+    //           model: Car,
+    //           as: "lines",
+    //         },
+    //       ]
+    //     },
+    //   ]
+    // })
     return successResponse(req, res, { lines });
   } catch (error) {
     return errorResponse(req, res, error.message);

@@ -12,12 +12,14 @@ const Op = db.Sequelize.Op;
 
 exports.signup = (req, res) => {
   const token = jwt.sign({ email: req.body.email }, config.secret);
-
+  console.log('sign up', req.body);
   User.create({
     username: req.body.username,
     email: req.body.email,
     password: bcrypt.hashSync(req.body.password, 8),
     confirmationcode: token,
+    firstname: req.body.firstname,
+    lastname: req.body.lastname,
   })
     .then((user) => {
       if (req.body.roles) {
@@ -88,11 +90,11 @@ exports.signin = (req, res) => {
         });
       }
 
-      if (user.verified != "Active") {
-        return res.status(401).send({
-          message: "Pending Account. Please Verify Your Email!",
-        });
-      }
+      // if (user.verified != "Active") {
+      //   return res.status(401).send({
+      //     message: "Pending Account. Please Verify Your Email!",
+      //   });
+      // }
 
       if (user.disabled) {
         return res.status(401).send({
@@ -137,9 +139,6 @@ exports.signin = (req, res) => {
 };
 
 exports.verifyUser = async (req, res) => {
-  //res.send("ok");
-  console.log(req.params);
-  //res.send("okk");
   try {
     console.log(req.params.confirmationcode);
     const user = await User.findOne({

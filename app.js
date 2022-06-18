@@ -24,6 +24,7 @@ const paymentRoute = require("./src/routes/payment.route");
 const contactRoute = require("./src/routes/contact.route");
 const lineRoute = require("./src/routes/line.route");
 const authJwt = require("./src/middleware/authJwt");
+const journeyRoute = require("./src/routes/journey");
 
 dotenv.config();
 require("./src/config/sequelize");
@@ -57,6 +58,7 @@ app.use("/contacts", contactRoute);
 app.use("/payments", paymentRoute);
 app.use("/lines", lineRoute);
 app.use("/", routeImage);
+app.use("/journeys", journeyRoute);
 
 // app.use('/pub', publicRoutes);
 // app.use('/api', apiMiddleware, apiRoutes);
