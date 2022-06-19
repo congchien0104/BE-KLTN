@@ -1,7 +1,7 @@
 const db = require("../../models");
 const randomstring = require("randomstring");
 const { successResponse, errorResponse } = require("../../helpers/index");
-const { User, Car, Reservation, Schedule, Route, CarSeat } = db;
+const { User, Car, Reservation, Schedule, Route, CarSeat, Company } = db;
 const paypal = require('paypal-rest-sdk');
 const paypalConfig = require('../../config/paypal');
 paypal.configure(paypalConfig);
@@ -159,24 +159,68 @@ const doPaymentServicePackage = async (req, res, next) => {
 const getTotalAmount = async (req, res) => {
   try {
     const total = await Reservation.sum('amount');
-    const totalAmountOfCar = await Reservation.findAll({
+    const amountOfCompany = await Reservation.findAll({
       attributes: [
         'carId',
         [sequelize.fn('sum', sequelize.col('amount')), 'total_amount'],
       ],
-      group: ['carId'],
+      group: ['companyId'],
       order: sequelize.fn('sum', sequelize.col('amount')),
       include: [
         {
-          model: Car,
-          as: "cars",
+          model: Company,
+          as: "company",
         },
       ],
     });
-    return successResponse(req, res, { total: total, totalAmountOfCar: totalAmountOfCar });
+    return successResponse(req, res, { total: total, amountOfCompany: amountOfCompany });
   } catch(error) {
     return errorResponse(req, res, error.message);
   }
+}
+
+const getTotalCompanyOfCar = async (req, res) => {
+    try {
+      const { userId } = req.user;
+
+      const user = await User.findOne({
+        where: { id: userId},
+        include: [
+          {
+            model: Company,
+            as: "company",
+          }
+        ]
+      });
+
+      if (!user.company) {
+        return res.send({ message: "Company not found!" });
+      }
+
+      console.log("test", user.company.id);
+
+      const total = await Reservation.sum('amount', { where: { companyId: user?.company?.id }});
+
+      const totalListCar = await Reservation.findAll({
+        where: {companyId: user?.company?.id },
+        attributes: [
+          'carId',
+          [sequelize.fn('sum', sequelize.col('amount')), 'total_amount'],
+        ],
+        group: ['carId'],
+        include: [
+          {
+            model: Car,
+            as: "cars",
+          },
+        ],
+        // order: sequelize.fn('sum', sequelize.col('amount')),
+      })
+
+      return successResponse(req, res, { total: total, totalListCar: totalListCar });
+    } catch(error) {
+      return errorResponse(req, res, error.message);
+    }
 }
 
 const getTotalOfCompany = async (req, res) => {
@@ -232,5 +276,6 @@ module.exports = {
   doPaymentServicePackage,
   getTotalAmount,
   getTotalOfCompany,
-  createReservation
+  createReservation,
+  getTotalCompanyOfCar,
 };

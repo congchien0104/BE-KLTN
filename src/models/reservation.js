@@ -85,6 +85,13 @@ module.exports = (sequelize, DataTypes) => {
       },
       as: "cars",
     });
+    Reservation.belongsTo(models.Company, {
+      foreignKey: {
+        name: "carId",
+        allowNull: false,
+      },
+      as: "company",
+    });
   };
   Reservation.createReservation = async function (data) {
     console.log(data);

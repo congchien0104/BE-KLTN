@@ -57,6 +57,13 @@ module.exports = (sequelize, DataTypes) => {
       },
       as: "lines",
     });
+    Company.hasMany(models.Reservation, {
+      foreignKey: {
+        name: "companyId",
+        allowNull: false,
+      },
+      as: "reservations",
+    });
   };
   return Company;
 };
