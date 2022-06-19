@@ -94,6 +94,11 @@ const createSchedule = async (req, res) => {
     console.log(req.body);
     const dataToSave = req.body;
 
+    const car = await Car.findOne({ where: { id: carId } });
+    if (!car) {
+      return res.send({ message: "Car not found!" });
+    }
+
     const resDateToSave = (dataToSave || []).map((item) => {
       return {
         ...item,
@@ -101,6 +106,7 @@ const createSchedule = async (req, res) => {
         paid_date: new Date(),
         userId: userId,
         paid_amount: 0,
+        companyId: car.companyId,
       }
     });
 
@@ -108,31 +114,7 @@ const createSchedule = async (req, res) => {
 
     const reservation = await Reservation.bulkCreate(resDateToSave);
 
-    // const car = await Car.findOne({ where: { id: carId } });
-    // if (!car) {
-    //   return res.send({ message: "Car not found!" });
-    // }
-
-    // const reservation = await Reservation.create({
-    //   receipt_number: randomstring.generate(10),
-    //   amount: data.amount,
-    //   paid_amount: data.amount,
-    //   paid_date: new Date(),
-    //   reservation_date: new Date(data.reservations_date),
-    //   carId: data.carId,
-    //   userId: userId || 14,
-    //   quantity: data.quantity,
-    //   fullname: data.fullname,
-    //   phone: data.phone,
-    //   email: data.email,
-    //   cccd: data.cccd,
-    //   pickup_place: data.pickup_place,
-    //   dropoff_place: data.dropoff_place,
-    //   position: temp.join(","),
-    //   status: ticketStatus.active,
-    // });
-
-    // return successResponse(req, res, reservation);
+    return successResponse(req, res, reservation);
   } catch (error) {
     return errorResponse(req, res, error.message);
   }

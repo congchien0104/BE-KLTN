@@ -299,4 +299,39 @@ const updateCar = async (req, res) => {
   }
 };
 
-module.exports = { getAllCars, getCar, createCar, updateCar, getCarSeat, getCarOfCompany, getCasesByFilteredRecord, getTemp };
+const getCarListOfCompany = async (req, res) => {
+  try {
+    const { userId } = req.user;
+
+    const user = await User.findOne({
+      where: { id: userId},
+      include: [
+        {
+          model: Company,
+          as: "company",
+        }
+      ]
+    });
+
+    if (!user.company) {
+      return res.send({ message: "Company not found!" });
+    }
+
+    console.log("test", user.company.id);
+
+    const carList = await Car.findAll({
+      where: {companyId: user?.company?.id},
+      include: [
+        {
+          model: Line,
+          as: "lines",
+        },
+      ],
+    })
+    return successResponse(req, res, { carList });
+  } catch(error) {
+    return errorResponse(req, res, error.message);
+  }
+}
+
+module.exports = { getAllCars, getCar, createCar, updateCar, getCarSeat, getCarOfCompany, getCasesByFilteredRecord, getTemp, getCarListOfCompany };

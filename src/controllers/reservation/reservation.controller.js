@@ -128,157 +128,134 @@ const getReservation = async (req, res) => {
   }
 };
 
-const getReservationOfCompany = async (req, res) => {
+const getReservationListOfCompany = async (req, res) => {
   try {
-    const userId = req.params.companyId;
-    console.log("jjjjjjjj", userId);
-    const lines = await User.findOne({
-      where: { id: userId },
-      include: [{
-        model: Company,
-        as: "company",
+    const { userId } = req.user;
+    const { page } = req.query;
+    const pages = page || 1;
+    const limit = 8;
+
+    const user = await User.findOne({
+      where: { id: userId},
+      include: [
+        {
+          model: Company,
+          as: "company",
+        }
+      ]
+    });
+
+    if (!user.company) {
+      return res.send({ message: "Company not found!" });
+    }
+
+    console.log("test", user.company.id);
+
+    
+    //const companyId = req.params.companyId;
+    const reservationList = await Reservation.findAndCountAll({
+      where: { 
+            companyId: user?.company?.id,
+        },
         include: [
           {
             model: Car,
             as: "cars",
             include: [
-            {
-              model: Reservation,
-              as: "reservations"
-            },
-            {
-              model: Line,
-              as: "lines"
-            }
-          ]
-          },
-        ]
-      }]
+              {
+                model: Line,
+                as: "lines",
+              },
+            ]
+          }
+        ],
+      order: [
+        ['createdAt', 'DESC']
+      ],
+      offset: (pages - 1) * limit,
+      limit,
     });
-    const reservationList = (lines?.company?.cars || []).map(item => item);
-    const result = (lines?.company?.cars || []).map(async (item) => {
-      const resList = await Car.findOne({
-        where: {id: item.id},
-        include: [{
-          model: Reservation,
-          as: "reservations"
-        }]
-      })
-      //return successResponse(req, res, { resList });
-      console.log(resList);
-      return {
-        list: resList?.reservations || [],
-      }
-    })
-    return successResponse(req, res, { lines });
-  } catch (error) {
+    console.log("test", reservationList);
+
+    return successResponse(req, res, { reservationList });
+  } catch(error) {
     return errorResponse(req, res, error.message);
   }
-  // try {
-  //   const { page, search } = req.query;
-  //   const pages = page || 1;
-  //   const limit = 8;
-  //   const companyId = req.params.companyId;
-  //   const reservation = await Reservation.findAndCountAll({
-  //     where: { 
-  //           companyId: companyId,
-  //           [Op.or]: {
-  //             receipt_number: {
-  //               [Op.like]: '%' + search + '%'
-  //             },
-  //             fullname: {
-  //               [Op.like]: '%' + search + '%'
-  //             },
-  //             email: {
-  //               [Op.like]: '%' + search + '%'
-  //             },
-  //             pickup_place: {
-  //               [Op.like]: '%' + search + '%'
-  //             },
-  //             dropoff_place: {
-  //               [Op.like]: '%' + search + '%'
-  //             },
-  //           }
-  //       },
-  //     include: [
-  //       {
-  //         model: Car,
-  //         as: "cars",
-  //         // where: {
-  //         //   [Op.or]: {
-  //         //     name: {
-  //         //       [Op.like]: '%' + search + '%'
-  //         //     },
-  //         //     plate_number: {
-  //         //       [Op.like]: '%' + search + '%'
-  //         //     },
-  //         //   }
-  //         // },
-  //         include: [
-  //           {
-  //             model: Line,
-  //             as: "lines",
-  //             // where: {
-  //             //   [Op.or]: {
-  //             //     start: {
-  //             //       [Op.like]: '%' + search + '%'
-  //             //     },
-  //             //     destination: {
-  //             //       [Op.like]: '%' + search + '%'
-  //             //     },
-  //             //   }
-  //             // }
-  //           },
-  //         ],
-  //       },
-  //     ],
-  //     order: [
-  //       ['createdAt', 'DESC']
-  //     ],
-  //     offset: search ? 0 : (pages - 1) * limit,
-  //     limit,
-  //   });
-  //   return successResponse(req, res, { reservation });
-  // } catch (error) {
-  //   return errorResponse(req, res, error.message);
-  // }
-};
+}
 
-const createReservation = async (req, res) => {
+const getReservationOfCompany = async (req, res) => {
   try {
     const { userId } = req.user;
-    const carId = req.params.carId;
-    console.log(req.body);
+    const { page, search } = req.query;
+    console.log(search);
+    const pages = page || 1;
+    const limit = 8;
 
-    // const car = await Car.findOne({ where: { id: carId } });
-    // if (!car) {
-    //   return res.send({ message: "Car not found!" });
-    // }
+    const user = await User.findOne({
+      where: { id: userId},
+      include: [
+        {
+          model: Company,
+          as: "company",
+        }
+      ]
+    });
 
-    // const reservation = await Reservation.create({
-    //   receipt_number: randomstring.generate(10),
-    //   amount: data.amount,
-    //   paid_amount: data.amount,
-    //   paid_date: new Date(),
-    //   reservation_date: new Date(data.reservations_date),
-    //   carId: data.carId,
-    //   userId: userId || 14,
-    //   quantity: data.quantity,
-    //   fullname: data.fullname,
-    //   phone: data.phone,
-    //   email: data.email,
-    //   cccd: data.cccd,
-    //   pickup_place: data.pickup_place,
-    //   dropoff_place: data.dropoff_place,
-    //   position: temp.join(","),
-    //   status: ticketStatus.active,
-    // });
+    if (!user.company) {
+      return res.send({ message: "Company not found!" });
+    }
 
-    // return successResponse(req, res, reservation);
-  } catch (error) {
+    console.log("test", user.company.id);
+
+    
+    //const companyId = req.params.companyId;
+    const reservationList = await Reservation.findAndCountAll({
+      where: { 
+            companyId: user?.company?.id,
+            // [Op.or]: {
+            //   receipt_number: {
+            //     [Op.like]: '%' + search + '%'
+            //   },
+            //   fullname: {
+            //     [Op.like]: '%' + search + '%'
+            //   },
+            //   email: {
+            //     [Op.like]: '%' + search + '%'
+            //   },
+            //   pickup_place: {
+            //     [Op.like]: '%' + search + '%'
+            //   },
+            //   dropoff_place: {
+            //     [Op.like]: '%' + search + '%'
+            //   },
+            // }
+        },
+        include: [
+                {
+                  model: Car,
+                  as: "cars",
+                  include: [
+                    {
+                      model: Line,
+                      as: "lines",
+                    },
+                  ]
+                }
+        ],
+      order: [
+        ['createdAt', 'DESC']
+      ],
+      offset: search ? 0 : (pages - 1) * limit,
+      limit,
+    });
+    console.log("test", reservationList);
+
+    return successResponse(req, res, { reservationList });
+  } catch(error) {
     return errorResponse(req, res, error.message);
   }
-};
+}
+
 
 // calculate total amount
 const getTotalAmount = async (req, res) => {
@@ -302,9 +279,9 @@ const calculateTotalOfCompany = async (req, res) => {
 module.exports = {
   getAllReservations,
   getReservation,
+  getReservationListOfCompany,
   getReservationOfCompany,
   getReservationOfUser,
-  createReservation,
   updateReservationStatus,
   getTotalAmount,
 };

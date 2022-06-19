@@ -1,6 +1,6 @@
 const db = require("../../models");
 const { successResponse, errorResponse } = require("../../helpers/index");
-const { User, Car, Feedback } = db;
+const { User, Car, Feedback, Company } = db;
 
 const getAllFeedbacks = async (req, res) => {
   try {
@@ -125,6 +125,44 @@ const deleteFeedback = async (req, res) => {
   }
 };
 
+const getFeedbackListCompany = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const { page } = req.query;
+    const pages = page || 1;
+    const limit = 8;
+
+    const user = await User.findOne({
+      where: { id: userId},
+      include: [
+        {
+          model: Company,
+          as: "company",
+        }
+      ]
+    });
+
+    if (!user.company) {
+      return res.send({ message: "Company not found!" });
+    }
+
+    console.log("test", user.company.id);
+
+    const feedbackList = await Feedback.findAndCountAll({
+      where: {companyId: user?.company?.id},
+      include: [
+        {
+          model: User,
+          as: "feedbacks",
+        },
+      ],
+    })
+    return successResponse(req, res, { feedbackList });
+  } catch(error) {
+    return errorResponse(req, res, error.message);
+  }
+}
+
 module.exports = {
   getAllFeedbacks,
   getFeedback,
@@ -132,4 +170,5 @@ module.exports = {
   createFeedback,
   updateFeedback,
   deleteFeedback,
+  getFeedbackListCompany,
 };

@@ -11,7 +11,8 @@ const userMiddleware = require("../../src/middleware/authJwt");
 //router.get("/", reservationController.getAllReservations);
 router.get("/user/:reservationId", reservationController.getReservationOfUser);
 router.get("/test/:carId", reservationController.getReservation);
-router.get("/:companyId", reservationController.getReservationOfCompany);
+//router.get("/all", userMiddleware.verifyToken, reservationController.getReservationListOfComapany);
+router.get("/", userMiddleware.verifyToken, reservationController.getReservationOfCompany);
 router.put("/:reservationId", reservationController.getAllReservations); // update status
 router.post("/:carId", userMiddleware.verifyToken, scheduleController.createSchedule);
 //router.get("/paypal", paymentController.doPaymentServicePackage);
