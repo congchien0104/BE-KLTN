@@ -190,6 +190,7 @@ const getReservationOfCompany = async (req, res) => {
     console.log(search);
     const pages = page || 1;
     const limit = 8;
+    
 
     const user = await User.findOne({
       where: { id: userId},
@@ -206,34 +207,39 @@ const getReservationOfCompany = async (req, res) => {
     }
 
     console.log("test", user.company.id);
+    const condition = search ? { 
+      companyId: user?.company?.id,
+      [Op.or]: {
+        receipt_number: {
+          [Op.like]: '%' + search + '%'
+        },
+        fullname: {
+          [Op.like]: '%' + search + '%'
+        },
+        email: {
+          [Op.like]: '%' + search + '%'
+        },
+        pickup_place: {
+          [Op.like]: '%' + search + '%'
+        },
+        dropoff_place: {
+          [Op.like]: '%' + search + '%'
+        },
+        '$cars.name$' : {
+          [Op.like]: '%' + search + '%'
+        },
+      }
+  } : { companyId: user?.company?.id };
 
     
     //const companyId = req.params.companyId;
     const reservationList = await Reservation.findAndCountAll({
-      where: { 
-            companyId: user?.company?.id,
-            // [Op.or]: {
-            //   receipt_number: {
-            //     [Op.like]: '%' + search + '%'
-            //   },
-            //   fullname: {
-            //     [Op.like]: '%' + search + '%'
-            //   },
-            //   email: {
-            //     [Op.like]: '%' + search + '%'
-            //   },
-            //   pickup_place: {
-            //     [Op.like]: '%' + search + '%'
-            //   },
-            //   dropoff_place: {
-            //     [Op.like]: '%' + search + '%'
-            //   },
-            // }
-        },
+      where: condition,
         include: [
                 {
                   model: Car,
                   as: "cars",
+                  required: true,
                   include: [
                     {
                       model: Line,
