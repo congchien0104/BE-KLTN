@@ -4,6 +4,8 @@ const db = require("../../models");
 const config = require("../../config/auth");
 const nodemailer = require("../../config/nodemailer");
 const { successResponse, errorResponse } = require("../../helpers/index");
+const sendgrid = require("../../config/sendgrid");
+const { use } = require("../../routes/contact.route");
 //const user = require("../../models/user");
 
 const { User, Role, RefreshToken } = db;
@@ -31,11 +33,16 @@ exports.signup = (req, res) => {
           },
         }).then((roles) => {
           user.setRoles(roles).then(() => {
-            nodemailer.sendConfirmationEmail(
-              user.username,
-              user.email,
-              user.confirmationcode
-            );
+            // nodemailer.sendConfirmationEmail(
+            //   user.username,
+            //   user.email,
+            //   user.confirmationcode
+            // );
+            sendgrid.confirmationEmail({
+              name: `${user.firstname} ${user.lastname}`,
+              email: user.email,
+              confirmationcode: user.confirmationcode,
+            });
             res.send({
               message:
                 "User was registered successfully! Please check your email",
@@ -50,11 +57,16 @@ exports.signup = (req, res) => {
               "User was registered successfully! Please check your email",
           });
           //return successResponse(req, res, user);
-          nodemailer.sendConfirmationEmail(
-            user.username,
-            user.email,
-            user.confirmationcode
-          );
+          // nodemailer.sendConfirmationEmail(
+          //   user.username,
+          //   user.email,
+          //   user.confirmationcode
+          // );
+          sendgrid.confirmationEmail({
+            name: `${user.firstname} ${user.lastname}`,
+            email: user.email,
+            confirmationcode: user.confirmationcode,
+          });
           //res.redirect("/");
         });
       }
