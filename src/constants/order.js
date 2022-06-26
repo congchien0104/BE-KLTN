@@ -1,18 +1,18 @@
 exports.orderFilter = [
     {
-        name: 'departure_time',
+        name: 'lines.departure_time',
         value: 'ASC'
     },
     {
-        name: 'departure_time',
+        name: 'lines.departure_time',
         value: 'DESC'
     },
     {
-        name: 'price',
+        name: 'lines.price',
+        value: 'DESC'
+    },
+    {
+        name: 'lines.price',
         value: 'ASC'
-    },
-    {
-        name: 'price',
-        value: 'DESC'
     },
 ];
