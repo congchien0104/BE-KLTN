@@ -102,11 +102,11 @@ exports.signin = (req, res) => {
         });
       }
 
-      // if (user.verified != "Active") {
-      //   return res.status(401).send({
-      //     message: "Pending Account. Please Verify Your Email!",
-      //   });
-      // }
+      if (user.verified != "Active") {
+        return res.status(401).send({
+          message: "Pending Account. Please Verify Your Email!",
+        });
+      }
 
       if (user.disabled) {
         return res.status(401).send({

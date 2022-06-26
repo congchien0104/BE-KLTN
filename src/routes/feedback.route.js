@@ -8,7 +8,7 @@ const userMiddleware = require("../../src/middleware/authJwt");
 
 //router.get("/", feedbackController.getAllFeedbacks);
 //router.get("/:feedbackId", feedbackController.getFeedback);
-//router.get("/:carId", feedbackController.getFeedbackOfCar);
+router.get("/:carId", feedbackController.getFeedbackOfCar);
 router.get("/", userMiddleware.verifyToken, feedbackController.getFeedbackListCompany);
 router.post(
   "/:carId",

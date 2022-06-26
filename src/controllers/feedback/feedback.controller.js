@@ -69,7 +69,15 @@ const createFeedback = async (req, res) => {
     const { userId } = req.user;
     const carId = req.params.carId;
 
-    const car = await Car.findOne({ where: { id: carId } });
+    const car = await Car.findOne({ 
+      where: { id: carId },
+      include: [
+        {
+          model: Company,
+          as: 'cars'
+        }
+      ]
+     });
     if (!car) {
       return res.send({ message: "Car not found!" });
     }
@@ -79,6 +87,7 @@ const createFeedback = async (req, res) => {
       rating: req.body.rating,
       carId: carId,
       userId: userId,
+      companyId: car.cars.id,
     });
 
     return successResponse(req, res, { feedback });

@@ -104,6 +104,7 @@ module.exports = (sequelize, DataTypes) => {
       reservation_date: new Date(data.reservations_date),
       carId: data.carId,
       userId: 14,
+      companyId: data.companyId,
       quantity: data.quantity,
       fullname: data.fullname,
       phone: data.phone,

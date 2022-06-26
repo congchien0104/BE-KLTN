@@ -6,6 +6,7 @@ const paypal = require('paypal-rest-sdk');
 const paypalConfig = require('../../config/paypal');
 paypal.configure(paypalConfig);
 import sequelize, { Op } from 'sequelize';
+import car from '../../models/car';
 
 // const createReservation = async (req, res) => {
 //   try {
@@ -97,7 +98,7 @@ const createPaypal = async (req, res) => {
         for (let i = 0; i < payment.links.length; i++) {
           if (payment.links[i].rel === "approval_url") {
             //sendSuccess(res, payment.links[i].href, httpStatus.OK);
-            Reservation.createReservation(req.body);
+            Reservation.createReservation({...req.body, companyId: 2});
             //CarSeat.updateStatus(arr);
             return successResponse(req, res, payment.links[i].href);
           }
