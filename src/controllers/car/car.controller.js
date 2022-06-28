@@ -273,7 +273,7 @@ const getCarListOfCompany = async (req, res) => {
         },
       ],
     })
-    return successResponse(req, res, { carList });
+    return successResponse(req, res, { carList, company: user?.company || '' });
   } catch(error) {
     return errorResponse(req, res, error.message);
   }
