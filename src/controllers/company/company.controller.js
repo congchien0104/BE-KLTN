@@ -6,18 +6,15 @@ const { Company, Car, Route, Schedule, User, Line } = db;
 
 const getAllCompanies = async (req, res) => {
   try {
-    // const page = req.params.page || 1;
-    // const limit = 2;
-    // const companies = await Company.findAndCountAll({
-    //   order: [
-    //     ["createdAt", "DESC"],
-    //     ["name", "ASC"],
-    //   ],
-    //   offset: (page - 1) * limit,
-    //   limit,
-    // });
-    const companies = await Company.findAll();
-    return successResponse(req, res, { companies });
+    const companies = await Company.findAll({
+      where: { disabled: false}
+    });
+
+    const listConfirm = await Company.findAll({
+      where: { disabled: true}
+    });
+    //const confirmCount = await Company.sum();
+    return successResponse(req, res, { companies, listConfirm });
   } catch (error) {
     return errorResponse(req, res, error.message);
   }
@@ -109,4 +106,21 @@ const getCarOfCompany = async (req, res) => {
   }
 };
 
-module.exports = { getAllCompanies, getCompany, createCompany, confirmed, getCarOfCompany };
+const getCompanyDetails = async (req, res) => {
+  try {
+    const companyId = req.params.companyId;
+    console.log(companyId);
+    const company = await Company.findOne({
+      where: { id: companyId },
+      include: {
+        model: Car,
+        as: "cars",
+      }
+    });
+    return successResponse(req, res, { company });
+  } catch(error) {
+    return errorResponse(req, res, error.message);
+  }
+}
+
+module.exports = { getAllCompanies, getCompany, createCompany, confirmed, getCarOfCompany, getCompanyDetails };

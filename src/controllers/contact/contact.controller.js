@@ -24,6 +24,15 @@ const createContact = async (req, res) => {
     }
   };
 
+const getContactList = async (req, res) => {
+  try {
+    const contactList = await Contact.findAll();
+    return successResponse(req, res, { contactList });
+  } catch(error) {
+    return errorResponse(req, res, error.message);
+  }
+}
+
 const temp = async (req, res) => {
   console.log('check Health');
   const msg = {
@@ -42,4 +51,4 @@ const temp = async (req, res) => {
   console.log('ok');
 };
   
-  module.exports = { createContact, temp };
+  module.exports = { createContact, temp, getContactList };

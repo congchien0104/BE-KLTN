@@ -71,6 +71,10 @@ const getReservationOfUser = async (req, res) => {
             },
           ],
         },
+        {
+          model: Company,
+          as: 'company'
+        }
       ],
       order: [
         ["createdAt", 'DESC']
@@ -95,6 +99,10 @@ const getReservationOfUser = async (req, res) => {
             },
           ],
         },
+        {
+          model: Company,
+          as: 'company'
+        }
       ],
       order: [
         ["createdAt", 'DESC']

@@ -10,6 +10,7 @@ const userMiddleware = require("../../src/middleware/authJwt");
 router.get("/", companyController.getAllCompanies);
 router.get("/cars/:companyId", companyController.getCompany);
 router.get("/:companyId", companyController.getCarOfCompany);
+router.get("/details/:companyId", companyController.getCompanyDetails);
 router.post("/", userMiddleware.verifyToken, companyController.createCompany);
 router.post("/cars/:id", carController.createCar);
 router.put("/:id", companyController.confirmed);

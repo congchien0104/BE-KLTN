@@ -141,10 +141,17 @@ const getCar = async (req, res) => {
         {
           model: Line,
           as: "lines",
+          include: {
+            model: Journey,
+            as: "journeys"
+          }
         },
       ],
     });
-    return successResponse(req, res, { car });
+    const company = await Company.findOne({
+      where: {id: car?.companyId}
+    });
+    return successResponse(req, res, { car, company });
   } catch (error) {
     return errorResponse(req, res, error.message);
   }

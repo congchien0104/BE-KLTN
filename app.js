@@ -49,7 +49,7 @@ app.get("/", (req, res) => {
 
 app.use("/auth", authRoute);
 app.use("/user", authJwt.verifyToken, userRoute);
-app.use("/companies", authJwt.verifyToken, companyRoute);
+app.use("/companies", companyRoute);
 app.use("/cars", carRoute);
 app.use("/schedules", scheduleRoute);
 app.use("/feedbacks", feedbackRoute);
