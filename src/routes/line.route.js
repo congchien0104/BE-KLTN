@@ -10,5 +10,6 @@ router.get("/:id", lineController.getLine);
 router.put("/:id", lineController.updateLine);
 router.get("/:companyId/companies", lineController.getLinesList);
 router.get("/:lineId/journeys", lineController.getJourneyLineList);
+router.put("/assign/:lineId", lineController.assignCar);
 
 module.exports = router;

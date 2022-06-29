@@ -1,6 +1,7 @@
 const db = require("../../models");
 const { successResponse, errorResponse } = require("../../helpers/index");
 const { Company, Car, Route, Schedule, User, Line } = db;
+import sendEmail from '../../config/sendgrid';
 
 // Get all Company
 
@@ -80,7 +81,8 @@ const confirmed = async (req, res) => {
     await User.findOne({id: company.userId}).then((user) => {
       user.setRoles([2]);
     });
-    await Company.update({ disabled: disabled }, { where: { id: id } });
+    const data = await Company.update({ disabled: disabled }, { where: { id: id } });
+    //sendEmail.confirmationEmail(data);
 
     return successResponse(req, res, "Company was updated successfully.");
   } catch (error) {

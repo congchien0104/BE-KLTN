@@ -33,26 +33,11 @@ export const getLinesList = async (req, res) => {
         ]
       }]
     });
-    // const lines = await Company.findOne({
-    //   where: { id: companyId },
-    //   include: [
-    //     {
-    //       model: Line,
-    //       as: "lines",
-    //       include: [
-    //         {
-    //           model: Journey,
-    //           as: "journeys",
-    //         },
-    //         {
-    //           model: Car,
-    //           as: "lines",
-    //         },
-    //       ]
-    //     },
-    //   ]
-    // })
-    return successResponse(req, res, { lines });
+    //console.log(lines?.company?.id);
+    const cars = await Car.findAll({
+      where: {companyId: lines?.company?.id}
+    })
+    return successResponse(req, res, { lines, cars });
   } catch (error) {
     return errorResponse(req, res, error.message);
   }
@@ -135,10 +120,29 @@ const updateLine = async (req, res) => {
   }
 };
 
+const assignCar = async (req, res) => {
+  try {
+    const lineId = req.params.lineId;
+    const line = await Line.findOne({
+      where: { id: lineId },
+    });
+    console.log(req.body.carId);
+    await Line.update(
+      { ...line, ...req.body },
+      { where: { id: line.id } }
+    );
+
+    return successResponse(req, res, line);
+  } catch (error) {
+    return errorResponse(req, res, error.message);
+  }
+};
+
 module.exports = {
     createLine,
     getLine,
     updateLine,
     getLinesList,
     getJourneyLineList,
+    assignCar
 };

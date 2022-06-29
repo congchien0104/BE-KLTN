@@ -2,6 +2,7 @@ const db = require("../../models");
 const { successResponse, errorResponse } = require("../../helpers/index");
 const { Company, Car, Route, Schedule, Seat, Reservation, Line } = db;
 const randomstring = require("randomstring");
+import sendEmail from '../../config/sendgrid';
 
 export const getLinesList = async (req, res) => {
   try {
@@ -113,7 +114,7 @@ const createSchedule = async (req, res) => {
     console.log(resDateToSave);
 
     const reservation = await Reservation.bulkCreate(resDateToSave);
-
+    await sendEmail.reservationEmail(reservation);
     return successResponse(req, res, reservation);
   } catch (error) {
     return errorResponse(req, res, error.message);
